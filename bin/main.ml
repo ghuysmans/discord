@@ -4,8 +4,11 @@ open Disml
 open Models
 
 let check_command (message:Message.t) =
-  if String.is_prefix ~prefix:"!ping" message.content then
+  match Bot.Lexer.tokenize message.content |> Bot.Parser.parse with
+  | Bot.Ast.Ping ->
     Message.reply message "Pong!" >>> ignore
+  | Message m ->
+    print_endline m
 
 
 let _ =
