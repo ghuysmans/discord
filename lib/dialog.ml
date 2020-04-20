@@ -10,5 +10,5 @@ let rec (>>=) t f =
   | Ask g -> Ask (fun ast -> g ast >>= f)
 
 let return x = Return x
-let send s = Send (s, fun () -> return ())
-let ask () = Ask (fun x -> return x)
+let send s = Send (s, return)
+let ask () = Ask return
