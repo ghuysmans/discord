@@ -8,7 +8,22 @@ let rec test () =
     | Message _ -> send "Meh..." >>= fun () -> return false
 
 let () =
-  if Interpreter.run (test ()) then
-    print_endline "right"
-  else
-    print_endline "wrong"
+  let a = ref @@ Interpreter.step @@ test () in
+  let b = ref @@ Interpreter.step @@ test () in
+  try
+    while true do
+      let m = read_line () in
+      let target, m =
+        if m.[0] = '&' then
+          b, String.(sub m 1 (length m - 1))
+        else
+          a, m
+      in
+      match !target with
+      | Return r -> Printf.printf "returned %b, ignoring the input\n" r
+      | Ask f ->
+        target := Lexer.tokenize m |> Parser.parse |> f |> Interpreter.step
+      | _ -> Printf.printf "stuck\n"
+    done
+  with End_of_file ->
+    ()
