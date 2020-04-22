@@ -2,6 +2,7 @@ open Bot
 open Dialog
 
 let rec test () =
+  ask () >>= fun _ ->
   get_user () >>= fun u ->
   send ("Hi " ^ u ^ "!") >>= fun () ->
   send "What's your favorite number?" >>= ask >>= function
