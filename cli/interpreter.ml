@@ -18,11 +18,14 @@ let update init user message =
     | Some d -> d
   in
   match d with
-  | Return () ->
-    Hashtbl.remove dialogs user;
-    Done
   | Ask f ->
-    Lexer.tokenize message |> Parser.parse |> f |> step user |>
-    Hashtbl.replace dialogs user;
-    Waiting
+    let d' = Lexer.tokenize message |> Parser.parse |> f |> step user in
+    (match d' with
+    | Return () ->
+      Hashtbl.remove dialogs user;
+      Done
+    | _ ->
+      Hashtbl.replace dialogs user d';
+      Waiting)
+  | Return () -> failwith "dropped message" (* FIXME *)
   | _ -> failwith "stuck" (* FIXME? *)
