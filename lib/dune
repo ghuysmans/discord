@@ -1,3 +1,4 @@
 (library
  (name bot)
- (libraries str))
+ (libraries str)
+ (preprocess future_syntax))

@@ -1,3 +1,4 @@
 (executable
  (name demo)
- (libraries bot))
+ (libraries bot)
+ (preprocess future_syntax))
