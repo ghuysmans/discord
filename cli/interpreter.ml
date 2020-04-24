@@ -1,31 +1,44 @@
 open Bot
 
-type state =
-  | Done
-  | Waiting
+type e =
+  | Message of string
 
 let dialogs : (string, unit Dialog.t) Hashtbl.t = Hashtbl.create 10
 
-let rec step user = function
-  | Dialog.Send (s, f) -> print_endline s; step user (f ())
-  | User f -> step user (f user)
-  | stuck -> stuck
-
-let update init user message =
-  let d =
-    match Hashtbl.find_opt dialogs user with
-    | None -> step user (init ())
-    | Some d -> d
+let handler user init event =
+  let rec step ?event user t =
+    let () =
+      let t =
+        match t with
+        | Dialog.Return _ -> "return"
+        | Send _ -> "send"
+        | Ask _ -> "ask"
+        | User _ -> "user"
+        | Switch_to _ -> "switch_to"
+      in
+      let event =
+        match event with
+        | Some (Message _) -> "message"
+        | None -> "step"
+      in
+      prerr_endline @@ "::: " ^ t ^ ", " ^ event
+    in
+    match t, event with
+    | Dialog.Return (), None -> ()
+    | Send (s, f), None ->
+      print_endline ("-> " ^ user ^ ": " ^ s);
+      step user (f ())
+    | Ask f, Some (Message text) ->
+      Lexer.tokenize text |> Parser.parse |> f |> step user
+    | Ask _, None ->
+      Hashtbl.replace dialogs user t
+    | User f, None ->
+      f user |> step user
+    | Switch_to (user', f), None ->
+      step user' (f ())
+    | t, _ -> (* FIXME? *)
+      Hashtbl.replace dialogs user t
   in
-  match d with
-  | Ask f ->
-    let d' = Lexer.tokenize message |> Parser.parse |> f |> step user in
-    (match d' with
-    | Return () ->
-      Hashtbl.remove dialogs user;
-      Done
-    | _ ->
-      Hashtbl.replace dialogs user d';
-      Waiting)
-  | Return () -> failwith "dropped message" (* FIXME *)
-  | _ -> failwith "stuck" (* FIXME? *)
+  match Hashtbl.find_opt dialogs user with
+  | None -> init () |> step ~event user
+  | Some t -> Hashtbl.remove dialogs user; step ~event user t

@@ -1,28 +1,41 @@
 open Bot
 open Dialog
 
-let rec test () =
+let rec ask_message () =
+  ask () >>= function
+    | Ping -> send "Not now, please..." >>= fun () -> ask_message ()
+    | Message m -> return m
+
+let test () =
   ask () >>= fun _ ->
   get_user () >>= fun u ->
   send ("Hi " ^ u ^ "!") >>= fun () ->
-  send "What's your favorite number?" >>= ask >>= function
-    | Ping -> send "Not now, please..." >>= fun () -> test ()
-    | Message "42" -> send "I knew it!"
-    | Message _ -> send "Meh..."
+  send "What's your favorite number?" >>= ask_message >>= fun fav ->
+  send "Who do you want to play with?" >>= ask_message >>= fun u' ->
+  switch_to u' >>= fun () ->
+  send (u^" asks what's your favorite number.") >>= ask_message >>= fun fav' ->
+  let tell_result () =
+    if fav = fav' then
+      send "You share the same favorite number."
+    else
+      return ()
+  in
+  tell_result () >>= fun () ->
+  switch_to u >>= fun () ->
+  tell_result ()
+
 
 let () =
   try
     while true do
       let m = read_line () in
-      let u, m =
+      let user, text =
         if m.[0] = '&' then
           "Bob", String.(sub m 1 (length m - 1))
         else
           "Alice", m
       in
-      match Interpreter.update test u m with
-      | Waiting -> ()
-      | Done -> Printf.printf "done.\n"
+      Interpreter.(handler user test (Message text))
     done
   with End_of_file ->
     ()
