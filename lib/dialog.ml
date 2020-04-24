@@ -13,6 +13,8 @@ let rec (>>=) t f =
   | User g -> User (fun u -> g u >>= f)
   | Switch_to (u, g) -> Switch_to (u, fun () -> g () >>= f)
 
+let bind = (>>=)
+
 let return x = Return x
 let send s = Send (s, return)
 let ask () = Ask return

@@ -1,27 +1,33 @@
 open Bot
 open Dialog
 
-let rec ask_message () =
-  ask () >>= function
-    | Ping -> send "Not now, please..." >>= fun () -> ask_message ()
-    | Message m -> return m
+let rec ask_message () = do_;
+  match%m ask () with
+  | Ping -> do_;
+    send "Not now, please...";
+    ask_message ()
+  | Message m ->
+    return m
 
-let test () =
-  ask () >>= fun _ ->
-  get_user () >>= fun u ->
-  send ("Hi " ^ u ^ "!") >>= fun () ->
-  send "What's your favorite number?" >>= ask_message >>= fun fav ->
-  send "Who do you want to play with?" >>= ask_message >>= fun u' ->
-  switch_to u' >>= fun () ->
-  send (u^" asks what's your favorite number.") >>= ask_message >>= fun fav' ->
+let test () = do_;
+  let%m _ = ask () in
+  u <-- get_user ();
+  send ("Hi " ^ u ^ "!");
+  send "What's your favorite number?";
+  fav <-- ask_message ();
+  send "Who do you want to play with?";
+  u' <-- ask_message ();
+  switch_to u';
+  send (u^" asks what's your favorite number.");
+  fav' <-- ask_message ();
   let tell_result () =
     if fav = fav' then
       send "You share the same favorite number."
     else
       return ()
   in
-  tell_result () >>= fun () ->
-  switch_to u >>= fun () ->
+  tell_result ();
+  switch_to u;
   tell_result ()
 
 
