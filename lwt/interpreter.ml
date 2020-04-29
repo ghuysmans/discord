@@ -1,4 +1,4 @@
-open Bot
+open Metabot
 open Lwt.Infix
 
 let rec run = function

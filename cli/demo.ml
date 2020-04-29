@@ -1,4 +1,4 @@
-open Bot
+open Metabot
 open Dialog
 
 let rec ask_message () =

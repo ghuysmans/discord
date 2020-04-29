@@ -1,4 +1,4 @@
-open Bot
+open Metabot
 
 type e =
   | Message of string

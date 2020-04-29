@@ -4,8 +4,8 @@ open Disml
 open Models
 
 let check_command (message:Message.t) =
-  match Bot.Lexer.tokenize message.content |> Bot.Parser.parse with
-  | Bot.Ast.Ping ->
+  match Metabot.Lexer.tokenize message.content |> Metabot.Parser.parse with
+  | Metabot.Ast.Ping ->
     Message.reply message "Pong!" >>> ignore
   | Message m ->
     print_endline m
