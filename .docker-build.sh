@@ -19,6 +19,7 @@ fi
 TRAVIS_TAG=`git rev-parse --short $TRAVIS_COMMIT`
 DEPLOY_TAG=$DEPLOY_REGISTRY/$DEPLOY_REPO:$TRAVIS_TAG
 docker build \
+	--cache-from $TRAVIS_REPO_SLUG:dev \
 	--build-arg compiler=$OCAML_VERSION \
 	--build-arg packages="$PACKAGES" \
 	--build-arg pins="$PINS" \
