@@ -1,0 +1,18 @@
+dist: xenial
+language: generic
+services:
+- docker
+before_install:
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+- |
+  if [ -n "$DEPLOY_REGISTRY" ]; then
+    echo "$DEPLOY_PASSWORD" | docker login -u "$DEPLOY_USERNAME" --password-stdin $DEPLOY_REGISTRY
+  fi
+script: sh -ex .docker-build.sh
+env:
+  global:
+  - PACKAGES=metabot
+  matrix:
+  - OCAML_VERSION=4.07
+os:
+- linux
