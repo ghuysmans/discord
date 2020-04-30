@@ -1,8 +1,7 @@
 #!/bin/sh
-export DOCKER_BUILDKIT=1
 
+docker pull $TRAVIS_REPO_SLUG:dev || true
 docker build \
-	--build-arg BUILDKIT_INLINE_CACHE=1 \
 	--cache-from $TRAVIS_REPO_SLUG:dev \
 	--build-arg compiler=$OCAML_VERSION \
 	--build-arg packages="$PACKAGES" \
