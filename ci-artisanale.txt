@@ -1,0 +1,32 @@
+Les script officiels génèrent un Dockerfile à partir du fichier opam.
+Cela permet de profiter du cache de Docker.
+Copier le fichier opam impliquerait de tout recompiler après un changement et
+toutes ces choses prennent du temps :
+- compilation (qui demande de l'espace même si c'est gratuit)
+	pull l'image en ignorant l'erreur
+	tant pis, on gaspille un peu de place pour les couches remplacées ?
+	buildkit (un autre moteur ?) vient à la rescousse !
+	docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from repo/image...
+	BUILDKIT_INLINE_CACHE publie le cache
+	--cache-from lit le cache sans même pull
+	ça marche mais pas sur Travis
+- upload (sauf si le serveur est bien placé)
+- download chez les gens
+Avec une dépendance par ligne, on peut abuser du cache (même si souvent, on a
+des trucs inutiles) mais ça peut gêner avec des dépendances optionnelles qui
+forceront la compilation de libs installées précédemment, occupant plus
+d'espace (gaspillé par la couche précédente).
+
+Comment je génère le Dockerfile ? Localement ou via la CI ?
+	toutes les dépendances doivent y être pour ne pas perdre de temps
+	je les ajoute à la main pour conserver l'ordre et profiter du cache
+Travis CI a l'air plus ouvert que GitHub Actions.
+Les secrets Travis permettent de garder mes mots de passe :
+- hub pour la machine de développement
+	c'est un token, pas mon vrai mot de passe
+- registry pour la production et les démos (avec d'autres secrets)
+	conteneur minimaliste avec seulement les exécutables
+	éviter de balancer les secrets inclus au côté client...
+Ils permettent aussi d'interagir avec des API qui demandent des clés... :
+- lors de tests d'intégration
+- en production
