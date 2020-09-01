@@ -1,0 +1,20 @@
+parser systématiquement ?
+	avantage : dans mes tests, je peux directement utiliser le type somme
+	inconvénient : parsing inutile qui impose le pattern matching
+session types pour empêcher un Return au mauvais moment ?
+ne pas réagir à ses propres messages (flood suicide)
+	facile à déclencher avec un bête rappel commençant par !
+	en plus c'est inutile donc je peux (dois) toujours les filtrer
+modéliser les interactions avec le serveur
+tests plus naturels ?
+distinguer MP et salon : distinguer les Ask ?
+quid quand switch alors que l'autre est déjà occupé ? attendre ?
+gérer la notification de déconnexion ?
+bonne lib ?
+	actuellement trop de dépendances
+	branche compatible Lwt ?
+	https://github.com/Firobe/Discocaml ?
+README avec les infos pour lancer son propre bot
+	rappels généraux aussi
+	container
+vraiment besoin de demander unit dans mes constructeurs ?
